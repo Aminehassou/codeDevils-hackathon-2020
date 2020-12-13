@@ -4,6 +4,8 @@ import logging
 from slack_bolt import App, BoltContext
 from slack_sdk import WebClient
 from dotenv import load_dotenv
+from api import get_country_info
+logging.basicConfig(level=logging.DEBUG)
 basedir = os.path.abspath(os.path.dirname(__file__))
 load_dotenv(os.path.join(basedir, '.env'))
 
