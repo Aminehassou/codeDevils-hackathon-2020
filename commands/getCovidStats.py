@@ -1,5 +1,5 @@
 
-from app import app, get_country_info, create_plot
+from app import app, get_country_info, create_plot, os
 from slack.errors import SlackApiError
 
 
@@ -31,7 +31,7 @@ def command_tip(ack, say, body, command, logger, client):
 
         except SlackApiError as e:
             logger.error("Error uploading file: {}".format(e))
-
+        os.remove(f"{file_name}.png")
     else:
         block = [
             {
