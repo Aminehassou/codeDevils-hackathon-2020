@@ -1,13 +1,37 @@
 
-from app import app, get_country_info
+from app import app, get_country_info, create_plot
+from slack.errors import SlackApiError
 
 
 @app.command("/covid")
 def command_tip(ack, say, body, command, logger, client):
     ack()
-    country_info = get_country_info(command['text'])
+    plot_command = "GRAPH"
+    if plot_command in command['text'].upper():
+        command_text = command['text'].rsplit(' ', 1)
+
+    else:
+        command_text = [command['text']]
+
+    country_info = get_country_info(command_text[0])
+        
     if country_info == False:
         say("Invalid Country")
+
+    elif command_text[-1].upper() == plot_command:
+        file_name = country_info["country"]
+        create_plot(country_info["timelines"]["confirmed"]["timeline"], file_name)
+        try:
+            result = client.files_upload(
+                channels=command['channel_id'],
+                initial_comment=f"Graph of confirmed cases in {file_name}",
+                file=f"{file_name}.png",
+            )
+            logger.info(result)
+
+        except SlackApiError as e:
+            logger.error("Error uploading file: {}".format(e))
+
     else:
         block = [
             {
@@ -54,8 +78,4 @@ def command_tip(ack, say, body, command, logger, client):
             }
         ]
 
-        print(f"United States:\n{get_country_info(command['text'])}\n")
-
-        # say() sends a message to the channel where the event was triggered
-        #say(f"*Country*: {country_info['country']}\n*Confirmed Cases:* {country_info['latest']['confirmed']}\n*Deaths:* {country_info['latest']['deaths']}")
         client.chat_postMessage(channel=command['channel_id'], blocks = block)

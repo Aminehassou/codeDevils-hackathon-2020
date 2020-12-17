@@ -4,7 +4,7 @@ countries = {'ARUBA': 'AW', 'AFGHANISTAN': 'AF', 'ANGOLA': 'AO', 'ANGUILLA': 'AI
 def get_country_info(country):
     covid19 = COVID19Py.COVID19(data_source="jhu")
     try:
-        location = covid19.getLocationByCountryCode(country)
+        location = covid19.getLocationByCountryCode(country, timelines=True)
     except:
         location = []
 
@@ -13,7 +13,7 @@ def get_country_info(country):
 
     elif location == [] and country.upper() in countries:
         country = countries[country.upper()]
-        locations = covid19.getLocationByCountryCode(country)
+        locations = covid19.getLocationByCountryCode(country, timelines=True)
         return locations[0]
 
     else:
